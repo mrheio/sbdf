@@ -1,15 +1,15 @@
-import dotenv from 'dotenv';
 import express from 'express';
-
-dotenv.config();
+import morgan from 'morgan';
+import './config.js';
+import categoriesRouter from './src/categories/index.js';
 
 const port = process.env.PORT ?? 3000;
 
 const app = express();
 
-app.get('/', (req, res) => {
-	res.send('Hello World!');
-});
+app.use(morgan('dev'));
+
+app.use('/categories', categoriesRouter);
 
 app.listen(port, () => {
 	console.log(`APP listening on port ${port}`);
