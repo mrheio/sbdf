@@ -1,3 +1,5 @@
+export * from './error.js';
+
 export const HTTP_STATUS_CODES = {
 	SUCCESS: {
 		OK: 200,

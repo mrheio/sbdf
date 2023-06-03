@@ -1,72 +1,61 @@
-import { eq } from 'drizzle-orm';
-import { categories, db, insertCategorySchema } from '../db/index.js';
 import { HTTP_STATUS_CODES } from '../utils/index.js';
+import categoriesService from './service.js';
 
-export const getCategories = async (req, res) => {
-	const result = await db.select().from(categories);
+export const getCategories = async (req, res, next) => {
+	const result = await categoriesService.getCategories();
 
-	return res.status(HTTP_STATUS_CODES.SUCCESS.OK).json(result);
+	return res.json(result);
 };
 
-export const insertCategory = async (req, res) => {
-	const { body: data } = req;
+export const insertCategory = async (req, res, next) => {
+	const { data } = res.locals;
 
 	try {
-		const category = insertCategorySchema.parse(data);
-
-		const id = (await db.insert(categories).values(category)).insertId;
-
-		const result = await db
-			.select()
-			.from(categories)
-			.where(eq(categories.id, id));
+		const result = await categoriesService.insertCategory(data);
 
 		return res
 			.status(HTTP_STATUS_CODES.SUCCESS.CREATED)
-			.header('Location', `/categories/${id}`)
+			.header('Location', `/categories/${result.id}`)
 			.json(result);
 	} catch (error) {
-		return res.status(error.status ?? 400).json(error);
+		return next(error);
 	}
 };
 
-export const updateCategory = async (req, res) => {
-	const { body } = req;
+export const updateCategory = async (req, res, next) => {
+	const { data } = res.locals;
 	const { id } = req.params;
 
 	try {
-		const newData = insertCategorySchema.parse(body);
-
-		await db.update(categories).set(newData).where(eq(categories.id, id));
-
-		const result = await db
-			.select()
-			.from(categories)
-			.where(eq(categories.id, id));
+		const result = await categoriesService.updateCategory(id, data);
 
 		return res
 			.status(HTTP_STATUS_CODES.SUCCESS.OK)
-			.header('Location', `/categories/${id}`)
+			.header('Location', `/categories/${result.id}`)
 			.json(result);
 	} catch (error) {
-		return res.json(error);
+		return next(error);
 	}
 };
 
-export const deleteCategory = async (req, res) => {
+export const deleteCategories = async (req, res, next) => {
+	try {
+		const result = await categoriesService.deleteCategories();
+
+		return res.status(HTTP_STATUS_CODES.SUCCESS.OK).json(result);
+	} catch (error) {
+		return next(error);
+	}
+};
+
+export const deleteCategory = async (req, res, next) => {
 	const { id } = req.params;
 
 	try {
-		const result = await db.delete(categories).where(eq(categories.id, id));
-
-		if (!result.rowsAffected) {
-			return res
-				.status(HTTP_STATUS_CODES.ERROR.CLIENT.NOT_FOUND)
-				.json({ message: `Category with id ${id} not found` });
-		}
+		await categoriesService.deleteCategory(id);
 
 		return res.status(HTTP_STATUS_CODES.SUCCESS.NO_CONTENT).end();
 	} catch (error) {
-		return res.json(error);
+		return next(error);
 	}
 };
