@@ -1,9 +1,24 @@
 import { eq } from 'drizzle-orm';
 import { categories, db } from '../db/index.js';
-import { apiError } from '../utils/index.js';
+import { ApiError } from '../utils/index.js';
 
 const getCategories = () => {
 	return db.select().from(categories);
+};
+
+const getCategory = async (id) => {
+	const category = (
+		await db.select().from(categories).where(eq(categories.id, id))
+	)[0];
+
+	if (!category) {
+		throw new ApiError()
+			.notFound()
+			.message(`Category with id ${id} not found`)
+			.payload({ id });
+	}
+
+	return category;
 };
 
 const insertCategory = async (data) => {
@@ -26,10 +41,10 @@ const updateCategory = async (id, newData) => {
 	).length;
 
 	if (!foundResult) {
-		throw apiError.notFound({
-			message: `Category with id ${id} not found`,
-			payload: { id },
-		});
+		throw new ApiError()
+			.notFound()
+			.message(`Category with id ${id} not found`)
+			.payload({ id });
 	}
 
 	await db.update(categories).set(newData).where(eq(categories.id, id));
@@ -41,25 +56,28 @@ const updateCategory = async (id, newData) => {
 	return updatedCategory;
 };
 
-const deleteCategory = async (id) => {
-	const result = await db.delete(categories).where(eq(categories.id, id));
-
-	if (!result.rowsAffected) {
-		throw apiError.notFound({
-			message: `Category with id ${id} not found`,
-			payload: { id },
-		});
-	}
-};
-
 const deleteCategories = async () => {
-	const result = await db.delete(categories);
+	await db.delete(categories);
 
 	return [];
 };
 
+const deleteCategory = async (id) => {
+	const result = await db.delete(categories).where(eq(categories.id, id));
+
+	if (!result.rowsAffected) {
+		throw new ApiError()
+			.notFound()
+			.message(`Category with id ${id} not found`)
+			.payload({ id });
+	}
+
+	await db.delete(categories).where(eq(categories.id, id));
+};
+
 const categoriesService = {
 	getCategories,
+	getCategory,
 	insertCategory,
 	updateCategory,
 	deleteCategories,

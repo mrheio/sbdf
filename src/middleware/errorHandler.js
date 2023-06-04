@@ -1,5 +1,11 @@
+import { ApiError } from '../utils/index.js';
+
 const errorHandlerMiddleware = (error, req, res, next) => {
-	return res.status(error.statusCode ?? error.status ?? 400).json(error);
+	if (error instanceof ApiError) {
+		return error.send(res);
+	}
+
+	throw error;
 };
 
 export default errorHandlerMiddleware;

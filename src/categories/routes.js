@@ -1,28 +1,26 @@
 import { Router } from 'express';
 import { insertCategorySchema } from '../db/index.js';
 import validationHandlerMiddleware from '../middleware/validationHandler.js';
-import {
-	deleteCategories,
-	deleteCategory,
-	getCategories,
-	insertCategory,
-	updateCategory,
-} from './controller.js';
+import categoriesController from './controller.js';
 
 const categoriesRouter = Router();
 
-categoriesRouter.get('/', getCategories);
+categoriesRouter.get('/', categoriesController.getCategories);
+categoriesRouter.get('/:id', categoriesController.getCategory);
+
 categoriesRouter.post(
 	'/',
 	validationHandlerMiddleware.body(insertCategorySchema),
-	insertCategory
+	categoriesController.insertCategory
 );
+
 categoriesRouter.patch(
 	'/:id',
 	validationHandlerMiddleware.body(insertCategorySchema),
-	updateCategory
+	categoriesController.updateCategory
 );
-categoriesRouter.delete('/', deleteCategories);
-categoriesRouter.delete('/:id', deleteCategory);
+
+categoriesRouter.delete('/', categoriesController.deleteCategories);
+categoriesRouter.delete('/:id', categoriesController.deleteCategory);
 
 export default categoriesRouter;
