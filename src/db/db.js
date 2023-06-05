@@ -1,12 +1,9 @@
-import { connect } from '@planetscale/database';
 import { drizzle } from 'drizzle-orm/planetscale-serverless';
 import { migrate } from 'drizzle-orm/planetscale-serverless/migrator';
+import { devConnection, testingConnection } from './connections/index.js';
 
-const connection = connect({
-	host: process.env['DATABASE_HOST'],
-	username: process.env['DATABASE_USERNAME'],
-	password: process.env['DATABASE_PASSWORD'],
-});
+const connection =
+	process.env.VITEST === 'true' ? testingConnection : devConnection;
 
 export const db = drizzle(connection);
 

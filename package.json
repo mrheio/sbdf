@@ -2,11 +2,11 @@
 	"name": "sbdf",
 	"version": "1.0.0",
 	"description": "TLDR: same backend requirements, implemented using different programming languages/frameworks",
-	"main": "app.js",
+	"main": "server.js",
 	"type": "module",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"dev": "nodemon ./app.js",
+		"test": "vitest",
+		"dev": "nodemon ./server.js",
 		"generate": "drizzle-kit generate:mysql"
 	},
 	"repository": {
@@ -23,7 +23,8 @@
 	"devDependencies": {
 		"drizzle-kit": "^0.18.1",
 		"drizzle-zod": "^0.4.2",
-		"nodemon": "^2.0.22"
+		"nodemon": "^2.0.22",
+		"vitest": "^0.31.4"
 	},
 	"dependencies": {
 		"@planetscale/database": "^1.7.0",
